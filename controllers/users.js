@@ -1,0 +1,125 @@
+const { sequelize, User } = require('../models');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const getTokenFrom = (req) => {
+  const authorization = req.get('authorization');
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    return authorization.substring(7);
+  }
+  return null;
+};
+
+exports.postUser = async (req, res) => {
+  const { first_name, last_name, email, password, password_confirm } = req.body;
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+  try {
+    if (!first_name) {
+      return res.json('First name is required.');
+    } else if (!last_name) {
+      return res.json('Last name is required.');
+    } else if (!email) {
+      return res.json('Email is required.');
+    } else if (!validateEmail(email)) {
+      return res.json('Email is not valid.');
+    } else if (!password) {
+      return res.json('Password is required.');
+    } else if (password.length < 4) {
+      return res.json('Password should be at least 4 characters long.');
+    } else if (password !== password_confirm) {
+      return res.json('Passwords do not match.');
+    } else {
+      const userByEmail = await User.findOne({
+        where: { email },
+      });
+      if (!userByEmail) {
+        const passwordHash = await bcrypt.hash(
+          password,
+          +process.env.SALT_ROUNDS
+        );
+        const user = await User.create({
+          first_name,
+          last_name,
+          email,
+          password: passwordHash,
+        });
+        return res.json(user);
+      } else {
+        return res.json(`User with email: ${email} already exists`);
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.postUserSignIn = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    if (email && password) {
+      const user = await User.findOne({
+        where: { email },
+      });
+      const passwordCheck = bcrypt.compareSync(password, user.password);
+      if (!user || !passwordCheck) {
+        return res.json('Email or password is incorrect.');
+      } else {
+        const userForToken = {
+          first_name: user.first_name,
+          last_name: user.last_name,
+          email: user.email,
+          uuid: user.uuid,
+        };
+        const token = jwt.sign(userForToken, process.env.SECRET);
+        return res.json({ ...userForToken, token });
+      }
+    } else {
+      return res.json('Email or password is missing.');
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.getUser = async (req, res) => {
+  try {
+    const users = await User.findOne({ where: { uuid: req.params.id } });
+    return res.json(users);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+exports.getUserByToken = async (req, res) => {
+  try {
+    const token = getTokenFrom(req);
+    const decodedToken = jwt.verify(token, process.env.SECRET);
+    if (decodedToken) {
+      const user = await User.findOne({ where: { email: decodedToken.email } });
+      if (user) {
+        const data = {
+          first_name: user.first_name,
+          last_name: user.last_name,
+          email: user.email,
+          uuid: user.uuid,
+        };
+        return res.json(data);
+      } else {
+        return res.json(`User couldn't be found.`);
+      }
+    } else {
+      res.json('Token is invalid.');
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};

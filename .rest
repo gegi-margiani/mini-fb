@@ -1,0 +1,21 @@
+# POST http://localhost:5000/users HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "first_name": "test",
+#     "last_name":"sease", 
+#     "email":"asd@asd.asdw", 
+#     "password":"password",
+#     "passwordConfirm":"password"
+# }
+
+# POST http://localhost:5000/posts/post HTTP/1.1
+# Content-Type: application/json
+
+# {
+#     "userUuid":"68ee4067-4d53-45d2-9926-fe3a27be31de",
+#     "title": "titel",
+#     "description":"postu"
+# }
+
+# GET http://localhost:5000/users/email/qweqwe HTTP/1.1
