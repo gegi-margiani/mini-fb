@@ -1,8 +1,7 @@
 const { sequelize, Post, User } = require('../models');
 
 exports.postPost = async (req, res) => {
-  console.log(req.body);
-  const userUuid = req.body.userUuid;
+  const userUuid = req.userUuid;
   let text = null;
   let imageURL = null;
   if (req.body.text) text = req.body.text;
@@ -22,6 +21,34 @@ exports.postPost = async (req, res) => {
 
       return res.json(post);
     }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.getAllPosts = async (req, res) => {
+  const pages = +req.params.pages;
+  try {
+    const posts = await Post.findAll({
+      attributes: { exclude: ['UserId'] },
+      order: [['createdAt', 'Desc']],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: {
+            exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+          },
+        },
+      ],
+      limit: 15 * pages,
+    });
+    const allPosts = await Post.findAll({
+      attributes: { exclude: ['UserId'] },
+    });
+
+    return res.json({ posts, pages: Math.ceil(allPosts.length / 10) });
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

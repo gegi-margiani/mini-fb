@@ -5,11 +5,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import App from './App';
 import loggedInUserReducer from './reducers/loggedInUser';
 import authenticationErrorReducer from './reducers/authenticationError';
+import postsReducer from './reducers/posts';
 
 const store = configureStore({
   reducer: {
     loggedInUser: loggedInUserReducer,
     authenticationError: authenticationErrorReducer,
+    posts: postsReducer,
   },
 });
 

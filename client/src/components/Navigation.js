@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import LogOut from './LogOut';
 import SearchPeople from './SearchPeople';
+import AuthNavigation from './AuthNavigation';
 
 const NavDiv = styled.div`
   display: flex;
@@ -16,18 +17,17 @@ function Navigation() {
     <div>
       {!loggedInUser.isInitialized ? (
         <NavDiv>
-          <SearchPeople />
-          <Link to="/">Main</Link>
+          <div>
+            <Link to="/">Main</Link>
+            <SearchPeople />
+          </div>
           <LogOut />
         </NavDiv>
       ) : (
         <NavDiv>
           <SearchPeople />
           <Link to="/">Main</Link>
-          <div>
-            <Link to="/register">Register</Link>
-            <Link to="/login">Log In</Link>
-          </div>
+          <AuthNavigation />
         </NavDiv>
       )}
     </div>

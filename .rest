@@ -19,3 +19,5 @@
 # }
 
 # GET http://localhost:5000/users/email/qweqwe HTTP/1.1
+
+GET http://localhost:5000/posts/allPosts HTTP/1.1

@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setError } from '../reducers/authenticationError';
 import { setUser } from '../reducers/loggedInUser';
 import { useNavigate } from 'react-router-dom';
+import AuthNavigation from './AuthNavigation';
 
 const Form = styled.form`
   display: grid;
@@ -71,6 +72,7 @@ function Register() {
   };
   return (
     <>
+      <AuthNavigation />
       <Form>
         <div>
           <label htmlFor="firstName">First Name*: </label>
