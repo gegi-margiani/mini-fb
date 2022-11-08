@@ -8,6 +8,7 @@ const { sequelize } = require('./models');
 
 const usersRouter = require('./routes/users');
 const postsRouter = require('./routes/posts');
+const commentsRouter = require('./routes/comments');
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -42,6 +43,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
+app.use('/comments', commentsRouter);
 
 app.listen({ port: 5000 }, async () => {
   console.log('Server up on http://localhost:5000');

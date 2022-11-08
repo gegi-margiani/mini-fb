@@ -7,18 +7,18 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Post, Comment, PostLikes, CommentLikes }) {
+    static associate({ Post, Comment, PostLike, CommentLike }) {
       this.hasMany(Post, {
         as: 'posts',
       });
       this.hasMany(Comment, {
         as: 'comments',
       });
-      this.hasMany(PostLikes, {
-        as: 'postLikes',
+      this.hasMany(PostLike, {
+        as: 'postLike',
       });
-      this.hasMany(CommentLikes, {
-        as: 'commentlikes',
+      this.hasMany(CommentLike, {
+        as: 'commentlike',
       });
     }
     toJSON() {

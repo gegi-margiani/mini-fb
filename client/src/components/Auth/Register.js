@@ -2,10 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setError } from '../reducers/authenticationError';
-import { setUser } from '../reducers/loggedInUser';
+import { setUser } from '../../reducers/loggedInUser';
 import { useNavigate } from 'react-router-dom';
 import AuthNavigation from './AuthNavigation';
+import { setError } from '../../reducers/authenticationError';
 
 const Form = styled.form`
   display: grid;
@@ -65,6 +65,7 @@ function Register() {
         last_name: user.data.last_name,
         email: user.data.email,
         uuid: user.data.uuid,
+        isLoggedIn: true,
       };
       dispatch(setUser(userInfo));
       localStorage.setItem('token', user.data.token);

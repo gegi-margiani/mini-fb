@@ -17,11 +17,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      likes: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -37,6 +32,9 @@ module.exports = {
       postId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+      },
+      replyToId: {
+        type: Sequelize.INTEGER,
       },
     });
   },

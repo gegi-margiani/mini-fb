@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ User, Post, CommentLikes }) {
+    static associate({ User, Post, CommentLike, Comment, CommentReply }) {
       this.belongsTo(User, {
         foreignKey: 'userId',
         allowNull: false,
@@ -18,8 +18,13 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         as: 'post',
       });
-      this.hasMany(CommentLikes, {
+      this.hasMany(CommentLike, {
         as: 'commentLikes',
+      });
+      this.hasMany(Comment, {
+        foreignKey: 'replyToId',
+        allowNull: true,
+        as: 'CommentReplies',
       });
     }
     toJSON() {
@@ -28,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
         id: undefined,
         userId: undefined,
         postId: undefined,
+        replyToId: undefined,
       };
     }
   }
@@ -40,11 +46,6 @@ module.exports = (sequelize, DataTypes) => {
       content: {
         type: DataTypes.STRING,
         allowNull: false,
-      },
-      likes: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -61,6 +62,10 @@ module.exports = (sequelize, DataTypes) => {
       postId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      replyToId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

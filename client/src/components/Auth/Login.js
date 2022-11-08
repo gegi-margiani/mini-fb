@@ -2,10 +2,10 @@ import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { setError } from '../reducers/authenticationError';
-import { setUser } from '../reducers/loggedInUser';
 import { useNavigate } from 'react-router-dom';
 import AuthNavigation from './AuthNavigation';
+import { setError } from '../../reducers/authenticationError';
+import { setUser } from '../../reducers/loggedInUser';
 
 const Form = styled.form`
   display: grid;

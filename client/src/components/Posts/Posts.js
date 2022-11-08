@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import CreatePost from '../components/CreatePost';
-import { setAllPostsPagination, setInitializePosts } from '../reducers/posts';
+import CreatePost from './CreatePost';
+import {
+  setAllPostsPagination,
+  setInitializePosts,
+} from '../../reducers/posts';
 import Post from './Post';
-import useOnScreen from '../hooks/useOnScreen';
+import useOnScreen from '../../hooks/useOnScreen';
 
 const PostsDiv = styled.div`
   width: 40vw;
@@ -35,7 +38,7 @@ function Posts() {
       <div ref={postsDivRef}>
         {posts.allPosts &&
           posts.allPosts.posts.map((post) => {
-            return <Post post={post} key={post.uuid} />;
+            return <Post post={post} key={post.uuid} id={post.uuid} />;
           })}
       </div>
     </PostsDiv>

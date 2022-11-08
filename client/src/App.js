@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Login from './components/Login';
+import Login from './components/Auth/Login';
 import Main from './components/Main';
-import Register from './components/Register';
+import Register from './components/Auth/Register';
 import { initializeUser } from './reducers/loggedInUser';
 
 function App() {

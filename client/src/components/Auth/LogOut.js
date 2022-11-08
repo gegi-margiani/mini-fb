@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { resetUser } from '../reducers/loggedInUser';
 import { useNavigate } from 'react-router-dom';
+import { resetUser } from '../../reducers/loggedInUser';
 
 function LogOut() {
   const navigate = useNavigate();

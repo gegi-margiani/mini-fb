@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import LogOut from './LogOut';
+import LogOut from './Auth/LogOut';
 import SearchPeople from './SearchPeople';
-import AuthNavigation from './AuthNavigation';
+import AuthNavigation from './Auth/AuthNavigation';
 
 const NavDiv = styled.div`
   display: flex;

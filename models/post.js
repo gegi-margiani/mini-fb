@@ -7,18 +7,16 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ User, Comment, PostLikes }) {
+    static associate({ User, Comment, PostLike }) {
       this.belongsTo(User, {
         foreignKey: 'userId',
         allowNull: false,
         as: 'user',
       });
       this.hasMany(Comment, {
-        foreignKey: 'commentId',
-        allowNull: false,
         as: 'comments',
       });
-      this.hasMany(PostLikes, {
+      this.hasMany(PostLike, {
         as: 'postLikes',
       });
     }
@@ -39,11 +37,6 @@ module.exports = (sequelize, DataTypes) => {
       imageURL: {
         type: DataTypes.STRING,
         defaultValue: null,
-      },
-      likes: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
       },
       createdAt: {
         type: DataTypes.DATE,

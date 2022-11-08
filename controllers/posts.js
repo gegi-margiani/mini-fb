@@ -1,4 +1,11 @@
-const { sequelize, Post, User } = require('../models');
+const {
+  sequelize,
+  Post,
+  User,
+  PostLike,
+  Comment,
+  CommentLike,
+} = require('../models');
 
 exports.postPost = async (req, res) => {
   const userUuid = req.userUuid;
@@ -41,13 +48,19 @@ exports.getAllPosts = async (req, res) => {
             exclude: ['email', 'password', 'createdAt', 'updatedAt'],
           },
         },
+        {
+          model: PostLike,
+          as: 'postLikes',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+          },
+        },
       ],
       limit: 15 * pages,
     });
     const allPosts = await Post.findAll({
       attributes: { exclude: ['UserId'] },
     });
-
     return res.json({ posts, pages: Math.ceil(allPosts.length / 10) });
   } catch (err) {
     console.log(err);

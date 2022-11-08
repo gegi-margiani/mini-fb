@@ -3,6 +3,16 @@ import axios from 'axios';
 
 let initialState = { isLoading: true };
 
+const getCurrentState = (state) => {
+  try {
+    return JSON.parse(JSON.stringify(state));
+  } catch (e) {
+    return null;
+  }
+};
+
+// const path = currState.allPosts.posts.getpostbyuuidhere.comments
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
@@ -28,7 +38,6 @@ export const setInitializePosts = () => {
     );
     posts.allPosts.posts = allPostsData.data.posts;
     posts.allPosts.page = 1;
-    console.log(allPostsData.data.posts);
     posts.allPosts.totalPages = allPostsData.data.pages;
     // if (localStorage.getItem('token')) {
     //   const friendsPosts = await axios.get(

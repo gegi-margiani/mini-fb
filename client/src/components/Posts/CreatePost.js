@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { setInitializePosts } from '../reducers/posts';
+import { setInitializePosts } from '../../reducers/posts';
 
 const Form = styled.form`
   display: flex;
@@ -26,7 +26,6 @@ function CreatePost() {
       },
     });
     dispatch(setInitializePosts());
-    console.log('test');
   };
 
   return (

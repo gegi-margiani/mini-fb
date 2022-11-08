@@ -20,4 +20,8 @@
 
 # GET http://localhost:5000/users/email/qweqwe HTTP/1.1
 
-GET http://localhost:5000/posts/allPosts HTTP/1.1
+# GET http://localhost:5000/posts/allPosts/1 HTTP/1.1
+
+# GET http://localhost:5000/comments/commentsByPost/190fe8c8-6dc6-45bf-b57e-10aac8439117 HTTP/1.1
+
+GET http://localhost:5000/comments/commentsByComment/afb217de-d234-4d0b-a74f-1e48d45c42f0 HTTP/1.1
