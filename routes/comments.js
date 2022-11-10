@@ -16,8 +16,13 @@ router.get('/commentByUuid/:commentUuid', commentControllers.getCommentByUuid);
 
 router.post('/commentLike', isAuth.isAuth, commentLikeControllers.commentLike);
 router.delete(
-  '/commentUnlike',
+  '/commentUnlike/:commentUuid',
   isAuth.isAuth,
   commentLikeControllers.commentUnlike
+);
+router.delete(
+  '/comment/delete/:commentUuid',
+  isAuth.isAuth,
+  commentControllers.deleteCommentByUuid
 );
 module.exports = router;

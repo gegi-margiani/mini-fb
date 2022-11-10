@@ -20,11 +20,14 @@ module.exports = (sequelize, DataTypes) => {
       });
       this.hasMany(CommentLike, {
         as: 'commentLikes',
+        onDelete: 'cascade',
+        hooks: true,
       });
       this.hasMany(Comment, {
         foreignKey: 'replyToId',
-        allowNull: true,
-        as: 'CommentReplies',
+        as: 'commentReplies',
+        onDelete: 'cascade',
+        hooks: true,
       });
     }
     toJSON() {

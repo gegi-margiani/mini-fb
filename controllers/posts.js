@@ -6,6 +6,7 @@ const {
   Comment,
   CommentLike,
 } = require('../models');
+const fs = require('fs');
 
 exports.postPost = async (req, res) => {
   const userUuid = req.userUuid;
@@ -92,6 +93,29 @@ exports.getPost = async (req, res) => {
       ],
     });
     return res.json(post);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.deletePostByUuid = async (req, res) => {
+  try {
+    const postUuid = req.params.postUuid;
+    if (postUuid) {
+      const post = await Post.findOne({
+        where: { uuid: postUuid },
+      });
+      if (post.imageURL) {
+        fs.unlink(post.imageURL, (err) => {
+          if (err) throw err;
+        });
+      }
+      await post.destroy();
+      return res.json('Post deleted');
+    } else {
+      return res.json('Post or user is missing.');
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

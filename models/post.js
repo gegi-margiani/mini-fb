@@ -15,9 +15,13 @@ module.exports = (sequelize, DataTypes) => {
       });
       this.hasMany(Comment, {
         as: 'comments',
+        onDelete: 'cascade',
+        hooks: true,
       });
       this.hasMany(PostLike, {
         as: 'postLikes',
+        onDelete: 'cascade',
+        hooks: true,
       });
     }
     toJSON() {

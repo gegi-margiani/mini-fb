@@ -11,6 +11,15 @@ router.get('/post/:postUuid', postControllers.getPost);
 router.post('/post', isAuth.isAuth, postControllers.postPost);
 
 router.post('/postLike', isAuth.isAuth, postLikeControllers.postLike);
-router.delete('/postUnlike', isAuth.isAuth, postLikeControllers.postUnlike);
+router.delete(
+  '/postUnlike/:postUuid',
+  isAuth.isAuth,
+  postLikeControllers.postUnlike
+);
+router.delete(
+  '/post/delete/:postUuid',
+  isAuth.isAuth,
+  postControllers.deletePostByUuid
+);
 
 module.exports = router;

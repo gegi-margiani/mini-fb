@@ -31,9 +31,8 @@ exports.postLike = async (req, res) => {
   }
 };
 exports.postUnlike = async (req, res) => {
-  const userUuid = req.body.userUuid;
-  const postUuid = req.body.postUuid;
-  console.log(userUuid, postUuid);
+  const userUuid = req.userUuid;
+  const postUuid = req.params.postUuid;
   try {
     if (userUuid && postUuid) {
       PostLike.destroy({

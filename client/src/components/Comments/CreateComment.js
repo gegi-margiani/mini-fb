@@ -10,7 +10,7 @@ const Form = styled.form`
 
 function CreateComment(props) {
   const commentRef = useRef(null);
-  const loggedInUser = useSelector((loggedInUser) => loggedInUser);
+  const loggedInUser = useSelector(({ loggedInUser }) => loggedInUser);
   const handleClick = async (e) => {
     e.preventDefault();
     const body = {
@@ -30,22 +30,27 @@ function CreateComment(props) {
       uuid: comment.data.uuid,
       content: comment.data.content,
       createdAt: comment.data.createdAt,
+      user: {
+        first_name: loggedInUser.first_name,
+        last_name: loggedInUser.last_name,
+        uuid: loggedInUser.uuid,
+      },
       commentLikes: [],
-      CommentReplies: [],
+      commentReplies: [],
     };
     if (props.replyCommentUuid) {
       body.replyToUuid = props.replyCommentUuid;
 
       props.setUpdateReplies({
         ...props.comment,
-        CommentReplies: [...props.comment.CommentReplies, newComment],
+        commentReplies: [...props.comment.commentReplies, newComment],
       });
       const commentsCopy = props.comments;
       const index = commentsCopy.comments.findIndex(
         (comment) => comment.uuid === props.replyCommentUuid
       );
       if (index > 0)
-        commentsCopy.comments[index].CommentReplies.push(newComment);
+        commentsCopy.comments[index].commentReplies.push(newComment);
       props.setComments({ ...commentsCopy });
       props.setIsRepliesVisible(true);
     } else {

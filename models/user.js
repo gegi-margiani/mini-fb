@@ -10,15 +10,23 @@ module.exports = (sequelize, DataTypes) => {
     static associate({ Post, Comment, PostLike, CommentLike }) {
       this.hasMany(Post, {
         as: 'posts',
+        onDelete: 'cascade',
+        hooks: true,
       });
       this.hasMany(Comment, {
         as: 'comments',
+        onDelete: 'cascade',
+        hooks: true,
       });
       this.hasMany(PostLike, {
         as: 'postLike',
+        onDelete: 'cascade',
+        hooks: true,
       });
       this.hasMany(CommentLike, {
         as: 'commentlike',
+        onDelete: 'cascade',
+        hooks: true,
       });
     }
     toJSON() {

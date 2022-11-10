@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 
 function Comments(props) {
   const [comments, setComments] = useState(null);
-  const [mainComment, setMainComment] = useState(null);
+  const [mainComment, setMainComment] = useState(false);
   const params = useParams();
   const loggedInUser = useSelector(({ loggedInUser }) => loggedInUser);
 
@@ -54,7 +54,7 @@ function Comments(props) {
         )
         .then((res) => setComments(res.data));
     }
-  }, [props.updateReplies]);
+  }, [props.updateReplies, props.deletedComment]);
 
   const loadMoreComments = (e) => {
     e.preventDefault();
@@ -99,6 +99,10 @@ function Comments(props) {
             load more comments
           </button>
         )}
+      {console.log(mainComment)}
+      {params.postUuid && params.commentUuid && mainComment === null && (
+        <h1>This comment has been removed</h1>
+      )}
       {mainComment && !props.isReplyToMain ? (
         <Comment
           isMainComment={true}
@@ -108,7 +112,7 @@ function Comments(props) {
           setComments={setComments}
           postDistanceFromLeft={props.postDistanceFromLeft}
         />
-      ) : comments ? (
+      ) : comments && comments.comments ? (
         comments.comments.map((comment) => {
           return (
             <Comment
@@ -118,6 +122,7 @@ function Comments(props) {
               comments={comments}
               setComments={setComments}
               postDistanceFromLeft={props.postDistanceFromLeft}
+              isNextCommentRedirect={props.isNextCommentRedirect}
             />
           );
         })

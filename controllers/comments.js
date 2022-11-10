@@ -49,6 +49,13 @@ exports.getCommentsByPost = async (req, res) => {
           where: { replyToId: null },
           include: [
             {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'email', 'password'],
+              },
+            },
+            {
               model: CommentLike,
               as: 'commentLikes',
               attributes: {
@@ -57,7 +64,7 @@ exports.getCommentsByPost = async (req, res) => {
             },
             {
               model: Comment,
-              as: 'CommentReplies',
+              as: 'commentReplies',
               attributes: {
                 exclude: [
                   'createdAt',
@@ -124,11 +131,18 @@ exports.getCommentsByComment = async (req, res) => {
       include: [
         {
           model: Comment,
-          as: 'CommentReplies',
+          as: 'commentReplies',
           attributes: {
             exclude: ['updatedAt', 'PostId', 'UserId'],
           },
           include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'email', 'password'],
+              },
+            },
             {
               model: CommentLike,
               as: 'commentLikes',
@@ -142,9 +156,10 @@ exports.getCommentsByComment = async (req, res) => {
                 ],
               },
             },
+
             {
               model: Comment,
-              as: 'CommentReplies',
+              as: 'commentReplies',
               attributes: {
                 exclude: [
                   'createdAt',
@@ -173,16 +188,16 @@ exports.getCommentsByComment = async (req, res) => {
           ],
         },
       ],
-      order: [[{ model: Comment, as: 'CommentReplies' }, 'createdAt', 'Asc']],
+      order: [[{ model: Comment, as: 'commentReplies' }, 'createdAt', 'Asc']],
     });
 
     if (comment) {
       const commentsCopy = [];
       if (
         req.params.pages <=
-        Math.ceil(comment.CommentReplies.length / commentsPerPage)
+        Math.ceil(comment.commentReplies.length / commentsPerPage)
       ) {
-        comment.CommentReplies.forEach((innerComment, i) => {
+        comment.commentReplies.forEach((innerComment, i) => {
           if (i < req.params.pages * commentsPerPage) {
             commentsCopy.push(innerComment);
           }
@@ -191,16 +206,16 @@ exports.getCommentsByComment = async (req, res) => {
           comments: commentsCopy,
           commentCurrPage: +req.params.pages,
           commentTotalPages: Math.ceil(
-            comment.CommentReplies.length / commentsPerPage
+            comment.commentReplies.length / commentsPerPage
           ),
         };
         return res.json(comments);
       } else {
         const comments = {
-          comments: comment.CommentReplies,
+          comments: comment.commentReplies,
           commentCurrPage: +req.params.pages,
           commentTotalPages: Math.ceil(
-            comment.CommentReplies.length / commentsPerPage
+            comment.commentReplies.length / commentsPerPage
           ),
         };
         return res.json(comments);
@@ -222,6 +237,13 @@ exports.getCommentByUuid = async (req, res) => {
       where: { uuid: commentUuid },
       include: [
         {
+          model: User,
+          as: 'user',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'email', 'password'],
+          },
+        },
+        {
           model: CommentLike,
           as: 'commentLikes',
           attributes: {
@@ -236,7 +258,7 @@ exports.getCommentByUuid = async (req, res) => {
         },
         {
           model: Comment,
-          as: 'CommentReplies',
+          as: 'commentReplies',
           attributes: {
             exclude: [
               'createdAt',
@@ -265,6 +287,24 @@ exports.getCommentByUuid = async (req, res) => {
       ],
     });
     return res.json(comment);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.deleteCommentByUuid = async (req, res) => {
+  try {
+    const commentUuid = req.params.commentUuid;
+    if (commentUuid) {
+      const comment = await Comment.findOne({
+        where: { uuid: commentUuid },
+      });
+      await comment.destroy();
+      return res.json(comment);
+    } else {
+      return res.json('Comment or user is missing.');
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

@@ -49,12 +49,14 @@ function Comment(props) {
       e.target.innerHTML = 'Unlike';
       likesRef.current.textContent = +likesRef.current.textContent + 1;
     } else {
-      await axios.delete('http://localhost:5000/comments/commentUnlike', {
-        data: body,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:5000/comments/commentUnlike/${props.comment.uuid}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
       e.target.innerHTML = 'Like';
       if (+likesRef.current.textContent === 1) {
         likesRef.current.textContent = undefined;
@@ -63,6 +65,8 @@ function Comment(props) {
       }
     }
   };
+
+  const [isNextCommentRedirect, setIsNextCommentRedirect] = useState(false);
   const navigateByReplyChainLen = (len) => {
     const distanceFromLeft = Math.floor(
       (commentRef.current.getBoundingClientRect().left -
@@ -72,93 +76,122 @@ function Comment(props) {
     if (params.commentUuid) {
       if (distanceFromLeft - 1 >= len) {
         navigate(`/post/${props.postUuid}/comment/${props.comment.uuid}`);
+      } else if (distanceFromLeft >= len) {
+        setIsNextCommentRedirect(true);
       }
     } else if (distanceFromLeft >= len) {
       navigate(`/post/${props.postUuid}/comment/${props.comment.uuid}`);
+    } else if (distanceFromLeft + 1 >= len) {
+      setIsNextCommentRedirect(true);
     }
   };
 
+  const [isCommentDeleted, setIsCommentDeleted] = useState(false);
+  const deleteComment = async (e) => {
+    e.preventDefault();
+    const res = await axios.delete(
+      `http://localhost:5000/comments/comment/delete/${props.comment.uuid}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    );
+    if (res.data) {
+      setIsCommentDeleted(true);
+    } else {
+      setIsCommentDeleted(false);
+    }
+  };
   return (
-    <CommentDiv
-      id={props.comment.uuid}
-      style={{ borderLeft: isReplyFormVisible ? '2px solid gray' : null }}
-      ref={commentRef}
-    >
-      <div>{props.comment.content}</div>
-      <div>
-        <span ref={likesRef}>
-          {props.comment.commentLikes &&
-            props.comment.commentLikes.length > 0 &&
-            props.comment.commentLikes.length}
-        </span>
+    !isCommentDeleted && (
+      <CommentDiv
+        id={props.comment.uuid}
+        style={{ borderLeft: isReplyFormVisible ? '2px solid gray' : null }}
+        ref={commentRef}
+      >
+        <div id={props.comment.user.uuid}>
+          {props.comment.user.first_name} {props.comment.user.last_name}
+        </div>
+        <div>{props.comment.content}</div>
         <div>
+          <span ref={likesRef}>
+            {props.comment.commentLikes &&
+              props.comment.commentLikes.length > 0 &&
+              props.comment.commentLikes.length}
+          </span>
           <div>
-            {loggedInUser.isLoggedIn && (
-              <>
-                <button onClick={handleLikeClick}>
-                  {props.comment.commentLikes &&
-                  props.comment.commentLikes.length > 0 &&
-                  props.comment.commentLikes.filter(
-                    (likes) => likes.userUuid === loggedInUser.uuid
-                  ).length > 0
-                    ? 'Unlike'
-                    : 'Like'}
-                </button>
-                {!props.isMainComment && (
-                  <button
-                    onClick={(e) => {
-                      navigateByReplyChainLen(3);
-                      setIsReplyFormVisible(true);
-                      setIsRepliesVisible(true);
-                    }}
-                  >
-                    Reply to comment
+            <div>
+              {loggedInUser.isLoggedIn && (
+                <>
+                  <button onClick={handleLikeClick}>
+                    {props.comment.commentLikes &&
+                    props.comment.commentLikes.length > 0 &&
+                    props.comment.commentLikes.filter(
+                      (likes) => likes.userUuid === loggedInUser.uuid
+                    ).length > 0
+                      ? 'Unlike'
+                      : 'Like'}
                   </button>
-                )}
+                  {!props.isMainComment && (
+                    <button
+                      onClick={(e) => {
+                        navigateByReplyChainLen(3);
+                        setIsReplyFormVisible(true);
+                        setIsRepliesVisible(true);
+                      }}
+                    >
+                      Reply{props.isNextCommentRedirect && '(Redirect)'}
+                    </button>
+                  )}
+                  {props.comment.user.uuid === loggedInUser.uuid && (
+                    <button onClick={deleteComment}>Delete</button>
+                  )}
+                </>
+              )}
+            </div>
+            {(updateReplies || isRepliesVisible) && (
+              <>
+                <Comments
+                  postDistanceFromLeft={props.postDistanceFromLeft}
+                  isReplyToMain={true}
+                  isVisible={isRepliesVisible}
+                  commentUuid={props.comment.uuid}
+                  replyPostUuid={props.postUuid}
+                  updateReplies={updateReplies}
+                  isNextCommentRedirect={isNextCommentRedirect}
+                />
               </>
             )}
-          </div>
-          {(updateReplies || isRepliesVisible) && (
-            <>
-              <Comments
-                postDistanceFromLeft={props.postDistanceFromLeft}
-                isReplyToMain={true}
-                isVisible={isRepliesVisible}
-                commentUuid={props.comment.uuid}
-                replyPostUuid={props.postUuid}
-                updateReplies={updateReplies}
+            {!isRepliesVisible &&
+              props.comment.commentReplies &&
+              props.comment.commentReplies.length > 0 && (
+                <button
+                  onClick={() => {
+                    navigateByReplyChainLen(3);
+                    setIsRepliesVisible(true);
+                    setIsReplyFormVisible(true);
+                  }}
+                >
+                  Load Replies{props.isNextCommentRedirect && '(Redirect)'}
+                </button>
+              )}
+            {(loggedInUser.isLoggedIn || props.isMainComment) && (
+              <CreateComment
+                isVisible={isReplyFormVisible}
+                postUuid={props.postUuid}
+                replyCommentUuid={props.comment.uuid}
+                setComments={props.setComments}
+                comments={props.comments}
+                comment={props.comment}
+                setIsRepliesVisible={setIsRepliesVisible}
+                setUpdateReplies={setUpdateReplies}
               />
-            </>
-          )}
-          {props.children && props.children}
-          {!isRepliesVisible &&
-            props.comment.CommentReplies &&
-            props.comment.CommentReplies.length > 0 && (
-              <button
-                onClick={() => {
-                  navigateByReplyChainLen(3);
-                  setIsRepliesVisible(true);
-                  setIsReplyFormVisible(true);
-                }}
-              >
-                Load Replies
-              </button>
             )}
-          {(loggedInUser.isLoggedIn || props.isMainComment) && (
-            <CreateComment
-              isVisible={isReplyFormVisible}
-              postUuid={props.postUuid}
-              replyCommentUuid={props.comment.uuid}
-              setComments={props.setComments}
-              comments={props.comments}
-              comment={props.comment}
-              setIsRepliesVisible={setIsRepliesVisible}
-              setUpdateReplies={setUpdateReplies}
-            />
-          )}
+          </div>
         </div>
-      </div>
-    </CommentDiv>
+      </CommentDiv>
+    )
   );
 }
 

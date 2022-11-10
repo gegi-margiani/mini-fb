@@ -31,9 +31,8 @@ exports.commentLike = async (req, res) => {
   }
 };
 exports.commentUnlike = async (req, res) => {
-  const userUuid = req.body.userUuid;
-  const commentUuid = req.body.commentUuid;
-  console.log(userUuid, commentUuid);
+  const userUuid = req.userUuid;
+  const commentUuid = req.params.commentUuid;
   try {
     if (userUuid && commentUuid) {
       CommentLike.destroy({
