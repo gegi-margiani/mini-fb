@@ -6,6 +6,7 @@ const isAuth = require('../middlewares/isAuth');
 // router.get('/:id', postControllers.getPost);
 
 router.get('/allPosts/:pages', postControllers.getAllPosts);
+router.get('/post/:postUuid', postControllers.getPost);
 
 router.post('/post', isAuth.isAuth, postControllers.postPost);
 

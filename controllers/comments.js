@@ -1,5 +1,7 @@
 const { sequelize, User, Post, Comment, CommentLike } = require('../models');
 
+const commentsPerPage = 10;
+
 exports.postComment = async (req, res) => {
   const userUuid = req.userUuid;
   const postUuid = req.body.postUuid;
@@ -70,13 +72,7 @@ exports.getCommentsByPost = async (req, res) => {
                   model: CommentLike,
                   as: 'commentLikes',
                   attributes: {
-                    exclude: [
-                      'createdAt',
-                      'updatedAt',
-                      'commentId',
-                      'UserId',
-                      'PostId',
-                    ],
+                    exclude: ['createdAt', 'updatedAt', 'commentId', 'UserId'],
                   },
                 },
               ],
@@ -87,14 +83,29 @@ exports.getCommentsByPost = async (req, res) => {
       order: [[{ model: Comment, as: 'comments' }, 'createdAt', 'Desc']],
     });
     if (post) {
-      const comments = {
-        comments: post.comments,
-        commentCurrPage: 1,
-        commentCountShow: 15,
-        commentCount: post.comments.length,
-        commentTotalPages: Math.ceil(post.comments.length / 15),
-      };
-      return res.json(comments);
+      const commentsCopy = [];
+      if (
+        req.params.pages <= Math.ceil(post.comments.length / commentsPerPage)
+      ) {
+        post.comments.forEach((comment, i) => {
+          if (i < req.params.pages * commentsPerPage) {
+            commentsCopy.push(comment);
+          }
+        });
+        const comments = {
+          comments: commentsCopy,
+          commentCurrPage: +req.params.pages,
+          commentTotalPages: Math.ceil(post.comments.length / commentsPerPage),
+        };
+        return res.json(comments);
+      } else {
+        const comments = {
+          comments: post.comments,
+          commentCurrPage: +req.params.pages,
+          commentTotalPages: Math.ceil(post.comments.length / commentsPerPage),
+        };
+        return res.json(comments);
+      }
     } else {
       return res.json('This post has no comments.');
     }
@@ -162,17 +173,98 @@ exports.getCommentsByComment = async (req, res) => {
           ],
         },
       ],
-      order: [[{ model: Comment, as: 'CommentReplies' }, 'createdAt', 'Desc']],
+      order: [[{ model: Comment, as: 'CommentReplies' }, 'createdAt', 'Asc']],
     });
 
-    const comments = {
-      comments: comment.CommentReplies,
-      commentCurrPage: 1,
-      commentCountShow: 10,
-      commentCount: comment.CommentReplies.length,
-      commentTotalPages: Math.ceil(comment.CommentReplies.length / 10),
-    };
-    return res.json(comments);
+    if (comment) {
+      const commentsCopy = [];
+      if (
+        req.params.pages <=
+        Math.ceil(comment.CommentReplies.length / commentsPerPage)
+      ) {
+        comment.CommentReplies.forEach((innerComment, i) => {
+          if (i < req.params.pages * commentsPerPage) {
+            commentsCopy.push(innerComment);
+          }
+        });
+        const comments = {
+          comments: commentsCopy,
+          commentCurrPage: +req.params.pages,
+          commentTotalPages: Math.ceil(
+            comment.CommentReplies.length / commentsPerPage
+          ),
+        };
+        return res.json(comments);
+      } else {
+        const comments = {
+          comments: comment.CommentReplies,
+          commentCurrPage: +req.params.pages,
+          commentTotalPages: Math.ceil(
+            comment.CommentReplies.length / commentsPerPage
+          ),
+        };
+        return res.json(comments);
+      }
+    } else {
+      return res.json('This comment has no replies.');
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.getCommentByUuid = async (req, res) => {
+  const commentUuid = req.params.commentUuid;
+  try {
+    const comment = await Comment.findOne({
+      attributes: { exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'] },
+      where: { uuid: commentUuid },
+      include: [
+        {
+          model: CommentLike,
+          as: 'commentLikes',
+          attributes: {
+            exclude: [
+              'createdAt',
+              'updatedAt',
+              'commentId',
+              'PostId',
+              'UserId',
+            ],
+          },
+        },
+        {
+          model: Comment,
+          as: 'CommentReplies',
+          attributes: {
+            exclude: [
+              'createdAt',
+              'updatedAt',
+              'PostId',
+              'UserId',
+              'replyToId',
+            ],
+          },
+          include: [
+            {
+              model: CommentLike,
+              as: 'commentLikes',
+              attributes: {
+                exclude: [
+                  'createdAt',
+                  'updatedAt',
+                  'commentId',
+                  'PostId',
+                  'UserId',
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    return res.json(comment);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

@@ -6,6 +6,7 @@ import Login from './components/Auth/Login';
 import Main from './components/Main';
 import Register from './components/Auth/Register';
 import { initializeUser } from './reducers/loggedInUser';
+import Post from './components/Posts/Post';
 
 function App() {
   const dispatch = useDispatch();
@@ -27,6 +28,8 @@ function App() {
           path="/login"
           element={!loggedInUser.isInitialized ? <Main /> : <Login />}
         />
+        <Route path="/post/:postUuid/comment/:commentUuid" element={<Post />} />
+        <Route path="/post/:postUuid" element={<Post />} />
         <Route path="/" element={<Main />} />
       </Routes>
     </Router>

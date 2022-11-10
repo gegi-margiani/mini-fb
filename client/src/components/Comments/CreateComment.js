@@ -18,15 +18,49 @@ function CreateComment(props) {
       postUuid: props.postUuid,
       content: commentRef.current.value,
     };
-    console.log(props.replyCommentUuid);
     if (props.replyCommentUuid) {
       body.replyToUuid = props.replyCommentUuid;
     }
-    await axios.post('http://localhost:5000/comments', body, {
+    const comment = await axios.post('http://localhost:5000/comments', body, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     });
+    const newComment = {
+      uuid: comment.data.uuid,
+      content: comment.data.content,
+      createdAt: comment.data.createdAt,
+      commentLikes: [],
+      CommentReplies: [],
+    };
+    if (props.replyCommentUuid) {
+      body.replyToUuid = props.replyCommentUuid;
+
+      props.setUpdateReplies({
+        ...props.comment,
+        CommentReplies: [...props.comment.CommentReplies, newComment],
+      });
+      const commentsCopy = props.comments;
+      const index = commentsCopy.comments.findIndex(
+        (comment) => comment.uuid === props.replyCommentUuid
+      );
+      if (index > 0)
+        commentsCopy.comments[index].CommentReplies.push(newComment);
+      props.setComments({ ...commentsCopy });
+      props.setIsRepliesVisible(true);
+    } else {
+      if (!props.comments) {
+        props.setComments({
+          commentCurrPage: 1,
+          commentTotalPages: 1,
+          comments: [newComment],
+        });
+      } else {
+        const commentsCopy = props.comments;
+        commentsCopy.comments.unshift(newComment);
+        props.setComments({ ...commentsCopy });
+      }
+    }
   };
 
   return (

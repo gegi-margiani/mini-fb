@@ -1,19 +1,44 @@
 import axios from 'axios';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Comments from './Comments';
 import CreateComment from './CreateComment';
+import styled from 'styled-components';
+import { useNavigate, useParams } from 'react-router-dom';
 
-function Comment({ comment, postUuid }) {
+const CommentDiv = styled.div`
+  position: relative;
+  left: 25px;
+  margin-right: 25px;
+  border-radius: 5px;
+`;
+
+function Comment(props) {
   const loggedInUser = useSelector(({ loggedInUser }) => loggedInUser);
-  const [isReplyFormVisible, setIsReplyFormVisible] = useState(false);
-  const [isRepliesVisible, setIsRepliesVisible] = useState(false);
+  const [isReplyFormVisible, setIsReplyFormVisible] = useState(() => {
+    if (props.isMainComment) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+  const [isRepliesVisible, setIsRepliesVisible] = useState(() => {
+    if (props.isMainComment) {
+      return true;
+    } else {
+      return false;
+    }
+  });
   const likesRef = useRef(null);
+  const [updateReplies, setUpdateReplies] = useState(false);
+  const navigate = useNavigate();
+  const commentRef = useRef(null);
+  const params = useParams();
 
   const handleLikeClick = async (e) => {
     const body = {
       userUuid: loggedInUser.uuid,
-      commentUuid: comment.uuid,
+      commentUuid: props.comment.uuid,
     };
     if (e.target.innerHTML === 'Like') {
       await axios.post('http://localhost:5000/comments/commentLike', body, {
@@ -38,62 +63,102 @@ function Comment({ comment, postUuid }) {
       }
     }
   };
+  const navigateByReplyChainLen = (len) => {
+    const distanceFromLeft = Math.floor(
+      (commentRef.current.getBoundingClientRect().left -
+        props.postDistanceFromLeft) /
+        27
+    );
+    if (params.commentUuid) {
+      if (distanceFromLeft - 1 >= len) {
+        navigate(`/post/${props.postUuid}/comment/${props.comment.uuid}`);
+      }
+    } else if (distanceFromLeft >= len) {
+      navigate(`/post/${props.postUuid}/comment/${props.comment.uuid}`);
+    }
+  };
 
   return (
-    <div
-      id={comment.uuid}
-      style={{ position: 'relative', left: '15px', marginRight: '15px' }}
+    <CommentDiv
+      id={props.comment.uuid}
+      style={{ borderLeft: isReplyFormVisible ? '2px solid gray' : null }}
+      ref={commentRef}
     >
-      <div>{comment.content}</div>
+      <div>{props.comment.content}</div>
       <div>
         <span ref={likesRef}>
-          {comment.commentLikes &&
-            comment.commentLikes.length > 0 &&
-            comment.commentLikes.length}
+          {props.comment.commentLikes &&
+            props.comment.commentLikes.length > 0 &&
+            props.comment.commentLikes.length}
         </span>
-
-        {loggedInUser.isLoggedIn && (
+        <div>
           <div>
-            <div>
-              <button onClick={handleLikeClick}>
-                {comment.commentLikes &&
-                comment.commentLikes.length > 0 &&
-                comment.commentLikes.filter(
-                  (likes) => likes.userUuid === loggedInUser.uuid
-                ).length > 0
-                  ? 'Unlike'
-                  : 'Like'}
-              </button>
-
+            {loggedInUser.isLoggedIn && (
+              <>
+                <button onClick={handleLikeClick}>
+                  {props.comment.commentLikes &&
+                  props.comment.commentLikes.length > 0 &&
+                  props.comment.commentLikes.filter(
+                    (likes) => likes.userUuid === loggedInUser.uuid
+                  ).length > 0
+                    ? 'Unlike'
+                    : 'Like'}
+                </button>
+                {!props.isMainComment && (
+                  <button
+                    onClick={(e) => {
+                      navigateByReplyChainLen(3);
+                      setIsReplyFormVisible(true);
+                      setIsRepliesVisible(true);
+                    }}
+                  >
+                    Reply to comment
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+          {(updateReplies || isRepliesVisible) && (
+            <>
+              <Comments
+                postDistanceFromLeft={props.postDistanceFromLeft}
+                isReplyToMain={true}
+                isVisible={isRepliesVisible}
+                commentUuid={props.comment.uuid}
+                replyPostUuid={props.postUuid}
+                updateReplies={updateReplies}
+              />
+            </>
+          )}
+          {props.children && props.children}
+          {!isRepliesVisible &&
+            props.comment.CommentReplies &&
+            props.comment.CommentReplies.length > 0 && (
               <button
                 onClick={() => {
+                  navigateByReplyChainLen(3);
+                  setIsRepliesVisible(true);
                   setIsReplyFormVisible(true);
                 }}
               >
-                Reply to comment
+                Load Replies
               </button>
-              {comment.CommentReplies && comment.CommentReplies.length > 0 && (
-                <button onClick={() => setIsRepliesVisible(true)}>
-                  Load Replies
-                </button>
-              )}
-            </div>
-            {isRepliesVisible && (
-              <Comments
-                isVisible={isRepliesVisible}
-                commentUuid={comment.uuid}
-                replyPostUuid={postUuid}
-              />
             )}
+          {(loggedInUser.isLoggedIn || props.isMainComment) && (
             <CreateComment
               isVisible={isReplyFormVisible}
-              postUuid={postUuid}
-              replyCommentUuid={comment.uuid}
+              postUuid={props.postUuid}
+              replyCommentUuid={props.comment.uuid}
+              setComments={props.setComments}
+              comments={props.comments}
+              comment={props.comment}
+              setIsRepliesVisible={setIsRepliesVisible}
+              setUpdateReplies={setUpdateReplies}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </CommentDiv>
   );
 }
 

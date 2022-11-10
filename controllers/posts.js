@@ -67,3 +67,33 @@ exports.getAllPosts = async (req, res) => {
     return res.status(500).json(err);
   }
 };
+
+exports.getPost = async (req, res) => {
+  try {
+    const post = await Post.findOne({
+      attributes: { exclude: ['UserId'] },
+      where: { uuid: req.params.postUuid },
+      order: [['createdAt', 'Desc']],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: {
+            exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+          },
+        },
+        {
+          model: PostLike,
+          as: 'postLikes',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+          },
+        },
+      ],
+    });
+    return res.json(post);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
