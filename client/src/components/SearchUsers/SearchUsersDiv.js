@@ -60,7 +60,15 @@ function SearchUsersDiv({
               {currPage - 1}
             </button>
           )}
-          <button>{currPage}</button>
+          <button
+            style={{
+              backgroundColor: 'gray',
+              border: '0px',
+              borderRadius: '5px',
+            }}
+          >
+            {currPage}
+          </button>
           {currPage + 1 < searchResult.allPages && (
             <button
               onClick={(e) => {

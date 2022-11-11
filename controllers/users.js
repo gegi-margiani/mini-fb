@@ -133,7 +133,9 @@ exports.getUsersByString = async (req, res) => {
     const page = req.params.page;
     const token = getTokenFrom(req);
     let decodedToken = { email: null };
-    if (token) decodedToken = jwt.verify(token, process.env.SECRET);
+    if (token && token !== 'null') {
+      decodedToken = jwt.verify(token, process.env.SECRET);
+    }
     let users = { users: null, allPages: null };
     if (searchArr.length <= 2) {
       users.users = await User.findAll({

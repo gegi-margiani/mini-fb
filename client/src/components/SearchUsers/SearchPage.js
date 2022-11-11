@@ -47,7 +47,11 @@ function SearchPage() {
   }, [currPage]);
 
   useEffect(() => {
-    if (searchResult && typeof searchResult !== 'string') {
+    if (
+      searchResult &&
+      typeof searchResult !== 'string' &&
+      currPage === false
+    ) {
       setCurrPage(1);
     }
   }, [searchResult]);
