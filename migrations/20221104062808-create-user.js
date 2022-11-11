@@ -29,6 +29,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      profile_picture_URL: {
+        type: Sequelize.STRING,
+        defaultValue: 'images/default-user-profile-picture.png',
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

@@ -28,4 +28,4 @@
 
 # GET http://localhost:5000/comments/commentsByComment/afb217de-d234-4d0b-a74f-1e48d45c42f0/1 HTTP/1.1
 
-GET http://localhost:5000/comments/commentsByPost/2b01305f-a03d-4aa3-a411-bb81246f3549/1 HTTP/1.1
+GET http://localhost:5000/users/search/aAAWW WW HTTP/1.1

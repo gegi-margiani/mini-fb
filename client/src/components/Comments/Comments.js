@@ -99,7 +99,6 @@ function Comments(props) {
             load more comments
           </button>
         )}
-      {console.log(mainComment)}
       {params.postUuid && params.commentUuid && mainComment === null && (
         <h1>This comment has been removed</h1>
       )}

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import CreatePost from './CreatePost';
 import {
   setAllPostsPagination,
-  setInitializePosts,
+  setInitializeAllPosts,
 } from '../../reducers/posts';
 import Post from './Post';
 import useOnScreen from '../../hooks/useOnScreen';
@@ -12,6 +12,11 @@ import useOnScreen from '../../hooks/useOnScreen';
 const PostsDiv = styled.div`
   width: 40vw;
   margin: auto;
+  .posts {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
 `;
 
 function Posts() {
@@ -22,7 +27,7 @@ function Posts() {
   const isOnScreen = useOnScreen(postsDivRef);
 
   useEffect(() => {
-    dispatch(setInitializePosts());
+    dispatch(setInitializeAllPosts());
   }, []);
 
   useEffect(() => {
@@ -35,7 +40,7 @@ function Posts() {
     <PostsDiv>
       {loggedInUser.isLoggedIn && <CreatePost />}
 
-      <div ref={postsDivRef}>
+      <div ref={postsDivRef} className="posts">
         {posts.allPosts &&
           posts.allPosts.posts.map((post) => {
             return <Post post={post} key={post.uuid} id={post.uuid} />;

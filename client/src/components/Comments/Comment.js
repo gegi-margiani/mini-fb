@@ -111,6 +111,11 @@ function Comment(props) {
         ref={commentRef}
       >
         <div id={props.comment.user.uuid}>
+          <img
+            src={`http://localhost:5000/${props.comment.user.profile_picture_URL}`}
+            alt="profile"
+            style={{ width: '35px', borderRadius: '50%' }}
+          />
           {props.comment.user.first_name} {props.comment.user.last_name}
         </div>
         <div>{props.comment.content}</div>

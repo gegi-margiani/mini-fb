@@ -29,7 +29,7 @@ const postsSlice = createSlice({
 export const { setPosts, setAllPosts } = postsSlice.actions;
 export default postsSlice.reducer;
 
-export const setInitializePosts = () => {
+export const setInitializeAllPosts = () => {
   return async (dispatch) => {
     const posts = {};
     posts.allPosts = {};
@@ -64,6 +64,30 @@ export const setAllPostsPagination = (posts) => {
     dispatch(setAllPosts(allPosts));
   };
 };
+
+export const setInitializeFollowedPosts = () => {
+  return async (dispatch) => {
+    const posts = {};
+    posts.allPosts = {};
+    const allPostsData = await axios.get(
+      `http://localhost:5000/posts/allPosts/1`
+    );
+    posts.allPosts.posts = allPostsData.data.posts;
+    posts.allPosts.page = 1;
+    posts.allPosts.totalPages = allPostsData.data.pages;
+    // if (localStorage.getItem('token')) {
+    //   const friendsPosts = await axios.get(
+    //     `http://localhost:5000/posts/friendsPosts`
+    //   );
+    //   if (friendsPosts) {
+    //     posts.friendsPosts.posts = friendsPosts;
+    //     posts.friendsPosts.page = 1;
+    //   }
+    // }
+    dispatch(setPosts(posts));
+  };
+};
+
 // export const setFriendsPostsPagination = (pages) => {
 //   return async (dispatch) => {
 //     if (localStorage.getItem('token')) {

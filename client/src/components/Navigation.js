@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import LogOut from './Auth/LogOut';
-import SearchPeople from './SearchPeople';
 import AuthNavigation from './Auth/AuthNavigation';
+import SearchUsers from './SearchUsers/SearchUsers';
 
 const NavDiv = styled.div`
   display: flex;
@@ -19,13 +19,17 @@ function Navigation() {
         <NavDiv>
           <div>
             <Link to="/">Main</Link>
-            <SearchPeople />
+            {!window.location.href.includes('http://localhost:3000/search') && (
+              <SearchUsers />
+            )}
           </div>
           <LogOut />
         </NavDiv>
       ) : (
         <NavDiv>
-          <SearchPeople />
+          {!window.location.href.includes('http://localhost:3000/search') && (
+            <SearchUsers />
+          )}
           <Link to="/">Main</Link>
           <AuthNavigation />
         </NavDiv>

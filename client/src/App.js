@@ -7,6 +7,7 @@ import Main from './components/Main';
 import Register from './components/Auth/Register';
 import { initializeUser } from './reducers/loggedInUser';
 import Post from './components/Posts/Post';
+import SearchPage from './components/SearchUsers/SearchPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -30,6 +31,8 @@ function App() {
         />
         <Route path="/post/:postUuid/comment/:commentUuid" element={<Post />} />
         <Route path="/post/:postUuid" element={<Post />} />
+        <Route path="/search/:searchString" element={<SearchPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/" element={<Main />} />
       </Routes>
     </Router>

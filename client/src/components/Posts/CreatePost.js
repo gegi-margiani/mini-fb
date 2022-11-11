@@ -2,11 +2,12 @@ import axios from 'axios';
 import React, { useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { setInitializePosts } from '../../reducers/posts';
+import { setInitializeAllPosts } from '../../reducers/posts';
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  margin-bottom: 5px;
 `;
 
 function CreatePost() {
@@ -25,7 +26,7 @@ function CreatePost() {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     });
-    dispatch(setInitializePosts());
+    dispatch(setInitializeAllPosts());
   };
 
   return (

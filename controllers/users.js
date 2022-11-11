@@ -1,4 +1,5 @@
 const { sequelize, User } = require('../models');
+const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -110,6 +111,7 @@ exports.getUserByToken = async (req, res) => {
           last_name: user.last_name,
           email: user.email,
           uuid: user.uuid,
+          profile_picture_URL: user.profile_picture_URL,
         };
         return res.json(data);
       } else {
@@ -117,6 +119,81 @@ exports.getUserByToken = async (req, res) => {
       }
     } else {
       res.json('Token is invalid.');
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.getUsersByString = async (req, res) => {
+  try {
+    const searchString = req.params.searchString;
+    const searchArr = searchString.split(' ');
+    const page = req.params.page;
+    const token = getTokenFrom(req);
+    let decodedToken = { email: null };
+    if (token) decodedToken = jwt.verify(token, process.env.SECRET);
+    let users = { users: null, allPages: null };
+    if (searchArr.length <= 2) {
+      users.users = await User.findAll({
+        where: {
+          [Op.and]: [
+            { email: { [Op.ne]: decodedToken.email } },
+            {
+              [Op.and]: [
+                {
+                  [Op.or]: [
+                    { first_name: { [Op.like]: `%${searchArr[0]}%` } },
+                    { first_name: { [Op.like]: `%${searchArr[1]}%` } },
+                  ],
+                },
+                {
+                  [Op.or]: [
+                    { last_name: { [Op.like]: `%${searchArr[0]}%` } },
+                    { last_name: { [Op.like]: `%${searchArr[1]}%` } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        order: [['first_name', 'Desc']],
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'password', 'email'],
+        },
+        offset: (page - 1) * 5,
+        limit: 5,
+      });
+      count = await User.findAndCountAll({
+        where: {
+          [Op.and]: [
+            { email: { [Op.ne]: decodedToken.email } },
+            {
+              [Op.and]: [
+                {
+                  [Op.or]: [
+                    { first_name: { [Op.like]: `%${searchArr[0]}%` } },
+                    { first_name: { [Op.like]: `%${searchArr[1]}%` } },
+                  ],
+                },
+                {
+                  [Op.or]: [
+                    { last_name: { [Op.like]: `%${searchArr[0]}%` } },
+                    { last_name: { [Op.like]: `%${searchArr[1]}%` } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      });
+      users.allPages = Math.ceil(count.count / 5);
+    }
+    if (users.users.length > 0) {
+      return res.json(users);
+    } else {
+      return res.json(`Users couldn't be found.`);
     }
   } catch (err) {
     console.log(err);

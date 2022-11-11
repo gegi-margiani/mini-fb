@@ -9,4 +9,6 @@ router.get('/:id', userControllers.getUser);
 
 router.get('/user/ByToken', userControllers.getUserByToken);
 
+router.get('/search/:searchString/:page', userControllers.getUsersByString);
+
 module.exports = router;

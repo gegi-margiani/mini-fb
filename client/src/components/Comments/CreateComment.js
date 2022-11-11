@@ -34,6 +34,7 @@ function CreateComment(props) {
         first_name: loggedInUser.first_name,
         last_name: loggedInUser.last_name,
         uuid: loggedInUser.uuid,
+        profile_picture_URL: loggedInUser.profile_picture_URL,
       },
       commentLikes: [],
       commentReplies: [],

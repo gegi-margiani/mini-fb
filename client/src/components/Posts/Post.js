@@ -109,7 +109,14 @@ function Post(props) {
             {post && (
               <>
                 <div className="postInfo">
-                  <div>{`${post.user.first_name} ${post.user.last_name}`}</div>
+                  <div>
+                    <img
+                      src={`http://localhost:5000/${post.user.profile_picture_URL}`}
+                      alt="profile"
+                      style={{ width: '35px', borderRadius: '50%' }}
+                    />
+                    {`${post.user.first_name} ${post.user.last_name}`}
+                  </div>
                   <div>
                     {date &&
                       `${date.getFullYear()}.${date.getMonth()}.${date.getDate()}
