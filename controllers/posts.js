@@ -84,7 +84,7 @@ exports.getFollowedPosts = async (req, res) => {
       ],
     });
     const userUuids = userFollows[0].follows.map((user) => user.uuid);
-
+    userUuids.push(userUuid);
     const posts = await Post.findAll({
       attributes: { exclude: ['UserId'] },
       order: [['createdAt', 'Desc']],
