@@ -127,6 +127,55 @@ exports.getFollowedPosts = async (req, res) => {
     return res.status(500).json(err);
   }
 };
+exports.getUserPosts = async (req, res) => {
+  const userUuid = req.params.userUuid;
+  const pages = +req.params.pages;
+  try {
+    const userPosts = await User.findAll({
+      where: { uuid: userUuid },
+      attributes: ['uuid', 'first_name', 'last_name'],
+      include: [
+        {
+          model: Post,
+          as: 'posts',
+          attributes: ['uuid'],
+        },
+      ],
+    });
+    const postUuids = userPosts[0].posts.map((post) => post.uuid);
+
+    const posts = await Post.findAll({
+      attributes: { exclude: ['UserId'] },
+      order: [['createdAt', 'Desc']],
+      where: { uuid: postUuids },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: {
+            exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+          },
+        },
+        {
+          model: PostLike,
+          as: 'postLikes',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+          },
+        },
+      ],
+      limit: 15 * pages,
+    });
+    const allPosts = await Post.findAll({
+      attributes: { exclude: ['UserId'] },
+      where: { uuid: postUuids },
+    });
+    return res.json({ posts, pages: Math.ceil(allPosts.length / 15) });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
 exports.getPost = async (req, res) => {
   try {
     const post = await Post.findOne({
