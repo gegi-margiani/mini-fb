@@ -62,13 +62,71 @@ exports.getAllPosts = async (req, res) => {
     const allPosts = await Post.findAll({
       attributes: { exclude: ['UserId'] },
     });
-    return res.json({ posts, pages: Math.ceil(allPosts.length / 10) });
+    return res.json({ posts, pages: Math.ceil(allPosts.length / 15) });
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
   }
 };
+exports.getFollowedPosts = async (req, res) => {
+  const pages = +req.params.pages;
+  const userUuid = req.userUuid;
+  try {
+    const userFollows = await User.findAll({
+      where: { uuid: userUuid },
+      attributes: ['uuid', 'first_name', 'last_name'],
+      include: [
+        {
+          model: User,
+          as: 'follows',
+          attributes: ['uuid'],
+        },
+      ],
+    });
+    const userUuids = userFollows[0].follows.map((user) => user.uuid);
 
+    const posts = await Post.findAll({
+      attributes: { exclude: ['UserId'] },
+      order: [['createdAt', 'Desc']],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: {
+            exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+          },
+          where: { uuid: userUuids },
+        },
+        {
+          model: PostLike,
+          as: 'postLikes',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+          },
+        },
+      ],
+      limit: 15 * pages,
+    });
+    const allPosts = await Post.findAll({
+      attributes: { exclude: ['UserId'] },
+      order: [['createdAt', 'Desc']],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: {
+            exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+          },
+          where: { uuid: userUuids },
+        },
+      ],
+    });
+    return res.json({ posts, pages: Math.ceil(allPosts.length / 15) });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
 exports.getPost = async (req, res) => {
   try {
     const post = await Post.findOne({

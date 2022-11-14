@@ -17,6 +17,10 @@ const PostDiv = styled.div`
     display: flex;
     justify-content: space-between;
   }
+  img {
+    width: 35px;
+    height: 35px;
+  }
 `;
 const ImagePlaceholder = styled.div`
   width: 100%;
@@ -40,7 +44,6 @@ function Post(props) {
         .get(`http://localhost:5000/posts/post/${params.postUuid}`)
         .then((res) => {
           setPost(res.data);
-          console.log(post);
           setIsCommentVisible(true);
         });
     }
@@ -109,7 +112,7 @@ function Post(props) {
             {post && (
               <>
                 <div className="postInfo">
-                  <div>
+                  <div id={post.user.uuid}>
                     <img
                       src={`http://localhost:5000/${post.user.profile_picture_URL}`}
                       alt="profile"

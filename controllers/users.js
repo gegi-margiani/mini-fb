@@ -1,7 +1,8 @@
-const { sequelize, User } = require('../models');
+const { sequelize, User, Post, UserFollower, PostLike } = require('../models');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 const getTokenFrom = (req) => {
   const authorization = req.get('authorization');
@@ -92,8 +93,79 @@ exports.postUserSignIn = async (req, res) => {
 
 exports.getUser = async (req, res) => {
   try {
-    const users = await User.findOne({ where: { uuid: req.params.id } });
+    const user = await User.findOne({ where: { uuid: req.params.id } });
     return res.json(users);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    const user = await User.findOne({ where: { uuid: req.userUuid } });
+    if (
+      user.profile_picture_URL !== 'images/default-user-profile-picture.png'
+    ) {
+      fs.unlink(user.profile_picture_URL, (err) => {
+        if (err) throw err;
+      });
+    }
+    const updatedUser = { ...user, profile_picture_URL: req.file.path };
+    user.update(updatedUser);
+
+    return res.json(req.file.path);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+exports.getFullUserInfo = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { uuid: req.params.userUuid },
+      attributes: { exclude: ['createdAt', 'updatedAt', 'email', 'password'] },
+      include: [
+        {
+          model: User,
+          through: UserFollower,
+          as: 'follows',
+          attributes: [
+            'first_name',
+            'last_name',
+            'profile_picture_URL',
+            'uuid',
+          ],
+        },
+        {
+          model: User,
+          through: UserFollower,
+          as: 'followedBy',
+          attributes: [
+            'first_name',
+            'last_name',
+            'profile_picture_URL',
+            'uuid',
+          ],
+        },
+        {
+          model: Post,
+          as: 'posts',
+          attributes: { exclude: ['UserId', 'updatedAt'] },
+          include: [
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    return res.json(user);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const isAuth = require('../middlewares/isAuth');
 const commentControllers = require('../controllers/comments');
-const commentLikeControllers = require('../controllers/commentLikes');
+const commentLikeControllers = require('../controllers/commentLike');
 
 router.post('/', isAuth.isAuth, commentControllers.postComment);
 router.get(

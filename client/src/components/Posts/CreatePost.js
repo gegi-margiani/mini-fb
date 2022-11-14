@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { setInitializeAllPosts } from '../../reducers/posts';
+import { setInitializePosts } from '../../reducers/posts';
 
 const Form = styled.form`
   display: flex;
@@ -16,7 +16,7 @@ function CreatePost() {
   const dispatch = useDispatch();
 
   const handleClick = async (e) => {
-    let body = {
+    const body = {
       text: textRef.current.value,
       image: imageRef.current.files[0],
     };
@@ -26,7 +26,7 @@ function CreatePost() {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     });
-    dispatch(setInitializeAllPosts());
+    dispatch(setInitializePosts());
   };
 
   return (
