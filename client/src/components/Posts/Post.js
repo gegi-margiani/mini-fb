@@ -115,7 +115,7 @@ function Post(props) {
                   <div id={post.user.uuid}>
                     <img
                       src={`http://localhost:5000/${post.user.profile_picture_URL}`}
-                      alt="profile"
+                      alt=""
                       style={{ width: '35px', borderRadius: '50%' }}
                     />
                     {`${post.user.first_name} ${post.user.last_name}`}

@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import Navigation from '../Navigation';
 import CreatePost from '../Posts/CreatePost';
+import Posts from '../Posts/Posts';
 
 function User() {
   const [user, setUser] = useState(null);
@@ -135,7 +136,8 @@ function User() {
         ) : null}
       </div>
       <div>
-        {user.uuid === loggedInUser.uuid && <CreatePost />}
+        <Posts />
+        {console.log(user)}
         {/* display user's posts */}
       </div>
     </div>

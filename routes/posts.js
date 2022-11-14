@@ -11,6 +11,8 @@ router.get(
   isAuth.isAuth,
   postControllers.getFollowedPosts
 );
+router.get('/userPosts/:userUuid/:pages', postControllers.getUserPosts);
+
 router.get('/post/:postUuid', postControllers.getPost);
 
 router.post('/post', isAuth.isAuth, postControllers.postPost);

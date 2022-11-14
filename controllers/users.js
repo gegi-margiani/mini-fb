@@ -149,20 +149,6 @@ exports.getFullUserInfo = async (req, res) => {
             'uuid',
           ],
         },
-        {
-          model: Post,
-          as: 'posts',
-          attributes: { exclude: ['UserId', 'updatedAt'] },
-          include: [
-            {
-              model: PostLike,
-              as: 'postLikes',
-              attributes: {
-                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
-              },
-            },
-          ],
-        },
       ],
     });
     return res.json(user);

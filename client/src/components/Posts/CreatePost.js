@@ -10,7 +10,7 @@ const Form = styled.form`
   margin-bottom: 5px;
 `;
 
-function CreatePost() {
+function CreatePost({ currFeed }) {
   const textRef = useRef(null);
   const imageRef = useRef(null);
   const dispatch = useDispatch();
@@ -26,7 +26,7 @@ function CreatePost() {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     });
-    dispatch(setInitializePosts());
+    dispatch(setInitializePosts(currFeed));
   };
 
   return (

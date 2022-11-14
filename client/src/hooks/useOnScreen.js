@@ -22,5 +22,5 @@ export default function useOnScreen(ref) {
     }
   }, [posts]);
 
-  return isOnScreen;
+  return { isOnScreen, setIsOnScreen };
 }

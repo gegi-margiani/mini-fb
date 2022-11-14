@@ -1,11 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import CreatePost from './CreatePost';
 import { setPostsPagination, setInitializePosts } from '../../reducers/posts';
 import Post from './Post';
 import useOnScreen from '../../hooks/useOnScreen';
-import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const PostsDiv = styled.div`
   width: 40vw;
@@ -26,39 +26,75 @@ const FeedDiv = styled.div`
 function Posts() {
   const posts = useSelector(({ posts }) => posts);
   const loggedInUser = useSelector(({ loggedInUser }) => loggedInUser);
+  const { userUuid } = useParams();
   const dispatch = useDispatch();
   const postsDivRef = useRef(null);
-  const isOnScreen = useOnScreen(postsDivRef);
+  const { isOnScreen, setIsOnScreen } = useOnScreen(postsDivRef);
+  const [currFeed, setCurrFeed] = useState();
 
   useEffect(() => {
-    dispatch(setInitializePosts());
-    axios
-      .get('http://localhost:5000/posts/followedPosts/1', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-      .then((res) => console.log(res.data));
-  }, []);
+    if (currFeed) {
+      setIsOnScreen(false);
+      dispatch(setInitializePosts(currFeed));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currFeed]);
 
   useEffect(() => {
     if (isOnScreen && posts.totalPages > posts.page)
-      dispatch(setPostsPagination(posts));
+      dispatch(setPostsPagination({ posts, route: currFeed }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnScreen]);
 
+  useEffect(() => {
+    if (window.location.href !== 'http://localhost:3000/') {
+      setCurrFeed(`userPosts/${userUuid}`);
+    } else if (loggedInUser.isLoggedIn === true) {
+      setCurrFeed('followedPosts');
+    } else if (loggedInUser.isInitialized) {
+      setCurrFeed('allPosts');
+    }
+  }, [loggedInUser]);
+
   return (
     <PostsDiv>
-      {loggedInUser.isLoggedIn && <CreatePost />}
-      <FeedDiv>
-        <button>All</button>
-        <button>Followed</button>
-      </FeedDiv>
+      {((loggedInUser.isLoggedIn &&
+        loggedInUser.uuid &&
+        window.location.href === 'http://localhost:3000/') ||
+        (window.location.href !== 'http://localhost:3000/' &&
+          userUuid === loggedInUser.uuid)) && (
+        <>
+          <CreatePost currFeed={currFeed} />
+          {window.location.href === 'http://localhost:3000/' && (
+            <FeedDiv>
+              <button
+                onClick={() => {
+                  setCurrFeed('allPosts');
+                }}
+              >
+                All
+              </button>
+              <button
+                onClick={() => {
+                  setCurrFeed('followedPosts');
+                }}
+              >
+                Followed
+              </button>
+            </FeedDiv>
+          )}
+        </>
+      )}
+
       <div ref={postsDivRef} className="posts">
-        {posts.posts &&
-          posts.posts.map((post) => {
-            return <Post post={post} key={post.uuid} id={post.uuid} />;
-          })}
+        {currFeed && (
+          <>
+            {posts.posts &&
+              posts.posts.map((post) => {
+                return <Post post={post} key={post.uuid} id={post.uuid} />;
+              })}
+          </>
+        )}
       </div>
     </PostsDiv>
   );
