@@ -18,33 +18,29 @@ function Comments(props) {
           `http://localhost:5000/comments/commentByUuid/${params.commentUuid}`
         )
         .then((res) => setMainComment(res.data));
-    }
-    if (props.commentUuid) {
-      axios
-        .get(
-          `http://localhost:5000/comments/commentsByComment/${props.commentUuid}/1`
-        )
-        .then((res) => setComments(res.data));
     } else if (props.postUuid) {
       axios
         .get(
           `http://localhost:5000/comments/commentsByPost/${props.postUuid}/1`
         )
         .then((res) => {
-          if (typeof res.data !== 'string') setComments(res.data);
+          if (typeof res.data !== 'string') {
+            setComments(res.data);
+            setMainComment(false);
+          }
         });
     }
   }, [params.commentUuid]);
 
   useEffect(() => {
-    if (params.postUuid && params.commentUuid) {
+    if ((params.postUuid && params.commentUuid) || props.commentUuid) {
       axios
         .get(
           `http://localhost:5000/comments/commentsByComment/${props.commentUuid}/1`
         )
         .then((res) => setComments(res.data));
     }
-  }, [props.commentUuid]);
+  }, [props.commentUuid, params.commentUuid]);
 
   useEffect(() => {
     if (props.updateReplies) {
@@ -81,7 +77,7 @@ function Comments(props) {
 
   return (
     <div style={{ display: props.isVisible ? 'block' : 'none' }}>
-      {props.postUuid && loggedInUser.isLoggedIn && !params.postUuid && (
+      {props.postUuid && loggedInUser.isLoggedIn && !params.commentUuid && (
         <CreateComment
           isVisible={props.isVisible}
           postUuid={props.postUuid}

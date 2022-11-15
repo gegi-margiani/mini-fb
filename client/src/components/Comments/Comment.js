@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Comments from './Comments';
 import CreateComment from './CreateComment';
@@ -110,7 +110,13 @@ function Comment(props) {
         style={{ borderLeft: isReplyFormVisible ? '2px solid gray' : null }}
         ref={commentRef}
       >
-        <div id={props.comment.user.uuid}>
+        <div
+          id={props.comment.user.uuid}
+          onClick={() => {
+            navigate(`/user/${props.comment.user.uuid}`);
+          }}
+          style={{ cursor: 'pointer' }}
+        >
           <img
             src={`http://localhost:5000/${props.comment.user.profile_picture_URL}`}
             alt="profile"

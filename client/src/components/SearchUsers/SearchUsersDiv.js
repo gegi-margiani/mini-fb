@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const UsersDiv = styled.div`
@@ -18,6 +19,7 @@ function SearchUsersDiv({
   currPage,
   setCurrPage,
 }) {
+  const navigate = useNavigate();
   return (
     <UsersDiv style={{ left: `${distanceFromLeft}px` }}>
       {typeof searchResult === 'string' ? (
@@ -25,7 +27,14 @@ function SearchUsersDiv({
       ) : (
         searchResult.users.map((user) => {
           return (
-            <div key={user.uuid} id={user.uuid}>
+            <div
+              key={user.uuid}
+              id={user.uuid}
+              onClick={() => {
+                navigate(`/user/${user.uuid}`);
+              }}
+              style={{ cursor: 'pointer' }}
+            >
               <img
                 src={`http://localhost:5000/${user.profile_picture_URL}`}
                 alt="profile"

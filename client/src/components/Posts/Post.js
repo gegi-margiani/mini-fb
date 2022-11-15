@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Comments from '../Comments/Comments';
 import Navigation from '../Navigation';
@@ -33,6 +33,7 @@ function Post(props) {
   const [post, setPost] = useState(null);
   const postRef = useRef(null);
   const params = useParams();
+  const navigate = useNavigate();
   const loggedInUser = useSelector(({ loggedInUser }) => loggedInUser);
   const [isPostDeleted, setIsPostDeleted] = useState(false);
 
@@ -112,7 +113,13 @@ function Post(props) {
             {post && (
               <>
                 <div className="postInfo">
-                  <div id={post.user.uuid}>
+                  <div
+                    id={post.user.uuid}
+                    onClick={() => {
+                      navigate(`/user/${post.user.uuid}`);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <img
                       src={`http://localhost:5000/${post.user.profile_picture_URL}`}
                       alt=""
@@ -130,7 +137,18 @@ function Post(props) {
                       }`}
                   </div>
                 </div>
-                <>{post.text && <div>{post.text}</div>}</>
+                <>
+                  {post.text && (
+                    <div
+                      onClick={() => {
+                        navigate(`/post/${post.uuid}`);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {post.text}
+                    </div>
+                  )}
+                </>
                 <>
                   {post.imageURL && !isImageLoaded && (
                     <ImagePlaceholder></ImagePlaceholder>
@@ -139,8 +157,11 @@ function Post(props) {
                     <img
                       src={`http://localhost:5000/${post.imageURL}`}
                       alt=""
-                      style={{ width: '100%' }}
+                      style={{ width: '100%', cursor: 'pointer' }}
                       onLoad={() => setIsImageLoaded(true)}
+                      onClick={() => {
+                        navigate(`/post/${post.uuid}`);
+                      }}
                     />
                   )}
                 </>
