@@ -16,6 +16,7 @@ router.get('/userPosts/:userUuid/:pages', postControllers.getUserPosts);
 router.get('/post/:postUuid', postControllers.getPost);
 
 router.post('/post', isAuth.isAuth, postControllers.postPost);
+router.post('/post/share', isAuth.isAuth, postControllers.sharePost);
 
 router.post('/postLike', isAuth.isAuth, postLikeControllers.postLike);
 router.delete(

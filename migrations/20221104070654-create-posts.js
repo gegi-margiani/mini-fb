@@ -33,6 +33,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      sharingPostId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
     });
   },
   async down(queryInterface, Sequelize) {

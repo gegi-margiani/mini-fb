@@ -32,6 +32,7 @@ export const setInitializePosts = (route) => {
     posts.posts = postsData.data.posts;
     posts.page = 1;
     posts.totalPages = postsData.data.pages;
+    console.log(postsData.data);
     dispatch(setPosts(posts));
   };
 };

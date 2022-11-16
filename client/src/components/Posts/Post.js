@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Comments from '../Comments/Comments';
 import Navigation from '../Navigation';
+import SharePost from './SharePost';
 
 const PostDiv = styled.div`
   margin-top: 5px;
@@ -21,6 +22,11 @@ const PostDiv = styled.div`
     width: 35px;
     height: 35px;
   }
+  background-color: ${(props) => props.isSharing && 'white'};
+  padding-right: ${(props) => props.isSharedPost && '1px'};
+  padding-left: ${(props) => props.isSharedPost && '3px'};
+  margin-top: ${(props) => props.isSharedPost && '2px'};
+  margin-bottom: ${(props) => props.isSharedPost && '4px'};
 `;
 const ImagePlaceholder = styled.div`
   width: 100%;
@@ -36,6 +42,8 @@ function Post(props) {
   const navigate = useNavigate();
   const loggedInUser = useSelector(({ loggedInUser }) => loggedInUser);
   const [isPostDeleted, setIsPostDeleted] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareCount, setShareCount] = useState();
 
   useEffect(() => {
     if (props.post) {
@@ -53,6 +61,7 @@ function Post(props) {
   useEffect(() => {
     if (post) {
       setDate(new Date(post.createdAt));
+      if (post.postSharedWith) setShareCount(post.postSharedWith.length);
     } else if (post === false) {
       setIsPostDeleted(true);
     }
@@ -104,12 +113,22 @@ function Post(props) {
     setIsPostDeleted(true);
   };
 
+  const sharePost = (e) => {
+    e.preventDefault();
+    setIsSharing(true);
+  };
+
   return (
     <>
       {!isPostDeleted ? (
         <>
           {params.postUuid && <Navigation />}
-          <PostDiv id={post ? post.uuid : null} ref={postRef}>
+          <PostDiv
+            id={post ? post.uuid : null}
+            ref={postRef}
+            isSharing={props.isSharing}
+            isSharedPost={props.isSharedPost}
+          >
             {post && (
               <>
                 <div className="postInfo">
@@ -157,7 +176,11 @@ function Post(props) {
                     <img
                       src={`http://localhost:5000/${post.imageURL}`}
                       alt=""
-                      style={{ width: '100%', cursor: 'pointer' }}
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        cursor: 'pointer',
+                      }}
                       onLoad={() => setIsImageLoaded(true)}
                       onClick={() => {
                         navigate(`/post/${post.uuid}`);
@@ -165,41 +188,58 @@ function Post(props) {
                     />
                   )}
                 </>
+                {post.sharingPost && (
+                  <Post isSharedPost={true} post={post.sharingPost} />
+                )}
                 <span>
                   {post.postLikes.length > 0 && post.postLikes.length}
                 </span>
-
-                <div>
-                  {loggedInUser.isLoggedIn && (
-                    <button onClick={handleLikeClick}>
-                      {post.postLikes.length > 0 &&
-                      post.postLikes.filter(
-                        (likes) => likes.userUuid === loggedInUser.uuid
-                      ).length > 0
-                        ? 'Unlike'
-                        : 'Like'}
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      setIsCommentVisible(true);
-                    }}
-                  >
-                    Comment
-                  </button>
-                  {loggedInUser.isLoggedIn &&
-                    post.user.uuid === loggedInUser.uuid && (
-                      <button onClick={deletePost}>Delete</button>
+                {!props.isSharing && !props.isSharedPost && (
+                  <div>
+                    {loggedInUser.isLoggedIn && (
+                      <button onClick={handleLikeClick}>
+                        {post.postLikes.length > 0 &&
+                        post.postLikes.filter(
+                          (likes) => likes.userUuid === loggedInUser.uuid
+                        ).length > 0
+                          ? 'Unlike'
+                          : 'Like'}
+                      </button>
                     )}
-                  <Comments
-                    isVisible={isCommentVisible}
-                    postUuid={post.uuid}
-                    postDistanceFromLeft={
-                      postRef.current.getBoundingClientRect().left
-                    }
-                    commentUuid={params.commentUuid && params.commentUuid}
-                  />
-                </div>
+                    <button
+                      onClick={() => {
+                        setIsCommentVisible(true);
+                      }}
+                    >
+                      Comment
+                    </button>
+                    {loggedInUser.isLoggedIn &&
+                      post.user.uuid === loggedInUser.uuid && (
+                        <button onClick={deletePost}>Delete</button>
+                      )}
+                    {loggedInUser.isLoggedIn && (
+                      <button onClick={sharePost}>Share</button>
+                    )}
+                    {shareCount > 0 && <span>{shareCount} share(s)</span>}
+                    {isSharing && (
+                      <SharePost
+                        setIsSharing={setIsSharing}
+                        post={post}
+                        currFeed={props.currFeed}
+                        setShareCount={setShareCount}
+                        shareCount={shareCount}
+                      />
+                    )}
+                    <Comments
+                      isVisible={isCommentVisible}
+                      postUuid={post.uuid}
+                      postDistanceFromLeft={
+                        postRef.current.getBoundingClientRect().left
+                      }
+                      commentUuid={params.commentUuid && params.commentUuid}
+                    />
+                  </div>
+                )}
               </>
             )}
           </PostDiv>

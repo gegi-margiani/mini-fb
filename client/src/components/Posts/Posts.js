@@ -47,7 +47,7 @@ function Posts() {
   }, [isOnScreen]);
 
   useEffect(() => {
-    if (window.location.href !== 'http://localhost:3000/') {
+    if (window.location.href !== 'http://localhost:3000/' && userUuid) {
       setCurrFeed(`userPosts/${userUuid}`);
     } else if (loggedInUser.isLoggedIn === true) {
       setCurrFeed('followedPosts');
@@ -91,7 +91,14 @@ function Posts() {
           <>
             {posts.posts &&
               posts.posts.map((post) => {
-                return <Post post={post} key={post.uuid} id={post.uuid} />;
+                return (
+                  <Post
+                    post={post}
+                    key={post.uuid}
+                    id={post.uuid}
+                    currFeed={currFeed}
+                  />
+                );
               })}
           </>
         )}

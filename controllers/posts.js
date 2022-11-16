@@ -34,6 +34,26 @@ exports.postPost = async (req, res) => {
     return res.status(500).json(err);
   }
 };
+exports.sharePost = async (req, res) => {
+  const userUuid = req.userUuid;
+  const postUuid = req.body.postUuid;
+  let text = null;
+  if (req.body.text) text = req.body.text;
+  try {
+    const user = await User.findOne({ where: { uuid: userUuid } });
+    let post = await Post.findOne({ where: { uuid: postUuid } });
+    const body = {
+      text,
+      userId: user.id,
+      sharingPostId: post.id,
+    };
+    await Post.create(body);
+    return res.json('Post has been shared.');
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
 
 exports.getAllPosts = async (req, res) => {
   const pages = +req.params.pages;
@@ -55,6 +75,48 @@ exports.getAllPosts = async (req, res) => {
           attributes: {
             exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
           },
+        },
+        {
+          model: Post,
+          as: 'postSharedWith',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
+        },
+        {
+          model: Post,
+          as: 'sharingPost',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
         },
       ],
       limit: 15 * pages,
@@ -103,6 +165,48 @@ exports.getFollowedPosts = async (req, res) => {
           attributes: {
             exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
           },
+        },
+        {
+          model: Post,
+          as: 'postSharedWith',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
+        },
+        {
+          model: Post,
+          as: 'sharingPost',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
         },
       ],
       limit: 15 * pages,
@@ -163,6 +267,48 @@ exports.getUserPosts = async (req, res) => {
             exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
           },
         },
+        {
+          model: Post,
+          as: 'postSharedWith',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
+        },
+        {
+          model: Post,
+          as: 'sharingPost',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
+        },
       ],
       limit: 15 * pages,
     });
@@ -196,6 +342,48 @@ exports.getPost = async (req, res) => {
           attributes: {
             exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
           },
+        },
+        {
+          model: Post,
+          as: 'postSharedWith',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
+        },
+        {
+          model: Post,
+          as: 'sharingPost',
+          attributes: { exclude: ['UserId'] },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: {
+                exclude: ['email', 'password', 'createdAt', 'updatedAt'],
+              },
+            },
+            {
+              model: PostLike,
+              as: 'postLikes',
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'PostId', 'UserId'],
+              },
+            },
+          ],
         },
       ],
     });

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AuthNavigation from './AuthNavigation';
 import { setError } from '../../reducers/authenticationError';
-import { setUser } from '../../reducers/loggedInUser';
+import { initializeUser, setUser } from '../../reducers/loggedInUser';
 
 const Form = styled.form`
   display: grid;
@@ -49,15 +49,8 @@ function Login() {
     if (typeof response.data === 'string') {
       dispatch(setError({ error: response.data }));
     } else {
-      const userInfo = {
-        first_name: response.data.first_name,
-        last_name: response.data.last_name,
-        email: response.data.email,
-        uuid: response.data.uuid,
-        isLoggedIn: true,
-      };
-      dispatch(setUser(userInfo));
       localStorage.setItem('token', response.data.token);
+      dispatch(initializeUser());
     }
   };
 

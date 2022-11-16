@@ -10,7 +10,19 @@ const NavDiv = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-
+const StyledDiv = styled.div`
+  display: flex;
+  a > img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+  }
+  a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+`;
 function Navigation() {
   const loggedInUser = useSelector(({ loggedInUser }) => loggedInUser);
   return (
@@ -23,7 +35,21 @@ function Navigation() {
               <SearchUsers />
             )}
           </div>
-          <LogOut />
+          <StyledDiv>
+            {loggedInUser.isLoggedIn && (
+              <Link to={`/user/${loggedInUser.uuid}`}>
+                <span>
+                  {loggedInUser.first_name} {loggedInUser.last_name}
+                </span>
+                <img
+                  src={`http://localhost:5000/${loggedInUser.profile_picture_URL}`}
+                  alt="profile"
+                  style={{ width: '35px' }}
+                />
+              </Link>
+            )}
+            <LogOut />
+          </StyledDiv>
         </NavDiv>
       ) : (
         <NavDiv>

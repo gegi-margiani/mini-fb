@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ User, Comment, PostLike }) {
+    static associate({ User, Comment, PostLike, Post }) {
       this.belongsTo(User, {
         foreignKey: 'userId',
         allowNull: false,
@@ -23,9 +23,25 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'cascade',
         hooks: true,
       });
+      this.belongsTo(Post, {
+        foreignKey: 'sharingPostId',
+        as: 'sharingPost',
+      });
+      this.hasMany(Post, {
+        foreignKey: 'sharingPostId',
+        as: 'postSharedWith',
+        onDelete: 'cascade',
+        hooks: true,
+      });
     }
     toJSON() {
-      return { ...this.get(), id: undefined, userId: undefined };
+      return {
+        ...this.get(),
+        id: undefined,
+        userId: undefined,
+        sharedPostsId: undefined,
+        sharingPostId: undefined,
+      };
     }
   }
   Post.init(
@@ -53,6 +69,10 @@ module.exports = (sequelize, DataTypes) => {
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      sharingPostId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {
